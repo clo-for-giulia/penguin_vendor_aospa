@@ -48,12 +48,13 @@ function showHelpAndExit {
         echo -e "${CLR_BLD_BLU}  -n, --version         Specify build minor version (number)${CLR_RST}"
         echo -e "${CLR_BLD_BLU}  -g, --gms             Build with GMS (package is tagged -gms)${CLR_RST}"
         echo -e "${CLR_BLD_BLU}  -l, --vanilla         Build without GMS${CLR_RST}"
+        echo -e "${CLR_BLD_BLU}  -k, --skip-kernel     Skip building the kernel${CLR_RST}"
         exit 1
 }
 
 # Setup getopt.
-long_opts="help,clean,installclean,repo-sync,variant:,build-type:,jobs:,module:,sign-keys:,pwfile:,backup-unsigned,delta:,imgzip,version:,gms,vanilla"
-getopt_cmd=$(getopt -o hcirv:t:j:m:s:p:bd:zn:gl --long "$long_opts" \
+long_opts="help,clean,installclean,repo-sync,variant:,build-type:,jobs:,module:,sign-keys:,pwfile:,backup-unsigned,delta:,imgzip,version:,gms,vanilla,skip-kernel"
+getopt_cmd=$(getopt -o hcirv:t:j:m:s:p:bd:zn:glk --long "$long_opts" \
             -n $(basename $0) -- "$@") || \
             { echo -e "${CLR_BLD_RED}\nError: Getopt failed. Extra args\n${CLR_RST}"; showHelpAndExit; exit 1;}
 
@@ -77,6 +78,7 @@ while true; do
         -n|--version|n|version) AOSPA_USER_VERSION="$2"; shift;;
         -g|--gms|g|gms) export TARGET_DISABLES_GMS=false;;
         -l|--vanilla|l|vanilla) export TARGET_DISABLES_GMS=true;;
+        -k|--skip-kernel|k|skip-kernel) FLAG_SKIP_KERNEL=y;;
         --) shift; break;;
     esac
     shift
@@ -226,7 +228,9 @@ echo -e "${CLR_BLD_BLU}Starting compilation${CLR_RST}"
 echo -e ""
 
 # Build kernel platform if it exists and the kernel version is supported
-if [ -d "$DIR_ROOT/kernel_platform/" ] && (
+if [ "${FLAG_SKIP_KERNEL}" = "y" ] || [ "${SKIP_KERNEL}" = "1" ]; then
+    echo -e "${CLR_BLD_CYA}Skipping kernel build as requested (-k / --skip-kernel)${CLR_RST}"
+elif [ -d "$DIR_ROOT/kernel_platform/" ] && (
    [ "${TARGET_KERNEL_VERSION}" != "4.4" ] &&
    [ "${TARGET_KERNEL_VERSION}" != "4.9" ] &&
    [ "${TARGET_KERNEL_VERSION}" != "4.14" ] &&
@@ -235,7 +239,7 @@ if [ -d "$DIR_ROOT/kernel_platform/" ] && (
 
     EXTRA_KERNEL_FLAGS=""
     if [ "${BUILD_TYPE}" = "user" ]; then
-        EXTRA_KERNEL_FLAGS+=' LTO="full"'
+        EXTRA_KERNEL_FLAGS+=' LTO="thin"'
     fi
     if [ "${BUILD_TYPE}" != "user" ]; then
         EXTRA_KERNEL_FLAGS+=' LZ4_RAMDISK_COMPRESS_ARGS="--fast" LTO="thin"'
