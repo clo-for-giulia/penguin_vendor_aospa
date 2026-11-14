@@ -13,6 +13,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/large_screen_common.mk)
 # Inherit from the caihong device.
 $(call inherit-product, device/oneplus/caihong/device.mk)
 
+AOSPA_BUILDTYPE ?= OFFICIAL
+
 # Inherit from the AOSPA configuration.
 $(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
 
@@ -26,8 +28,8 @@ PRODUCT_CHARACTERISTICS := nosdcard,tablet
 PRODUCT_GMS_CLIENTID_BASE := android-oneplus
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BuildDesc="qssi_64-user 16 BP2A.250605.015 1778208015618 release-keys" \
-    BuildFingerprint=OnePlus/OPD2403IN/OP5DAAL1:16/UKQ1.231108.001/U.R4T3.367361a-12b9c76-12b9c73:user/release-keys \
+    BuildDesc="qssi_64-user 16 BP2A.250605.015 1789047268867 release-keys" \
+    BuildFingerprint=OnePlus/OPD2403/OP5DAAL1:16/UKQ1.231108.001/U.R4T3.202609102203:user/release-keys \
     DeviceName=OP5DAAL1 \
     DeviceProduct=OPD2403 \
     SystemDevice=OP5DAAL1 \
